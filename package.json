@@ -1,0 +1,16 @@
+{
+  "name": "install-node",
+  "version": "0.0.1",
+  "description": "Install node.js",
+  "author": "Mapbox",
+  "license": "ISC",
+  "bin": {
+    "install_node": "./bin/install_node"
+  },
+  "dependencies": {
+    "semver": "^2.3.0"
+  },
+  "engines": {
+    "node": "0.10.26"
+  }
+}

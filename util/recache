@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cache_dir="$(dirname $0)/../cache"
+
+# Grab gpg keys we trust. These should not change.
+echo "Grabbing trusted gpg keys"
+gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$cache_dir/../cache/izs.asc"
+gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$cache_dir/../cache/tjfontaine.asc"
+
+# Grab node releases from nodejs.org.
+echo "Updating cache/node-versions"
+curl -sSf http://nodejs.org/dist/ | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" > "$cache_dir/../cache/node-versions"
