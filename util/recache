@@ -1,22 +1,21 @@
 #!/bin/bash
 
+main="$(dirname $0)/../bin/install_node"
 cache_dir="$(dirname $0)/../cache"
-
-# Grab gpg keys we trust. These should not change.
-echo "Grabbing trusted gpg keys"
-gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$cache_dir/../cache/izs.asc"
-gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$cache_dir/../cache/tjfontaine.asc"
-
-
-# Intentionally disabled -- we would like to control the range of Node.js versions
-# Grab node releases from nodejs.org.
-# echo "Updating cache/node-versions"
-# curl -sSf http://nodejs.org/dist/ | grep -oE "[0-9]+\.[0-9]+\.[0-9]+" > "$cache_dir/../cache/node-versions"
-
-# Cache versions to S3
-versions=( $(cat $cache_dir/node-versions) )
 tmp=$(mktemp -d -t install-node.XXXXXX)
 cd "$tmp"
+
+# Cache app to S3
+gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > ./izs.asc
+gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > ./tjfontaine.asc
+
+s3 cp --acl public-read "$main"           s3://mapbox/apps/install-node/run.sh
+s3 cp --acl public-read ./izs.asc         s3://mapbox/apps/isntall-node/cache/izs.asc
+s3 cp --acl public-read ./tjfontaine.asc  s3://mapbox/apps/isntall-node/cache/tjfontaine.asc
+
+# Cache node.js packages to S3
+versions=( $(cat "$cache_dir/node-versions") )
+dest="s3://mapbox/vendor/nodejs/test/"
 
 for nv in "${versions[@]}"; do
     echo "Caching Node.js v$nv to S3"
@@ -25,6 +24,9 @@ for nv in "${versions[@]}"; do
     wget -q "http://nodejs.org/dist/v$nv/node-v$nv-darwin-x64.tar.gz"
     wget -q "http://nodejs.org/dist/v$nv/node.exe"
 
-    aws s3 sync --acl public-read . s3://mapbox/vendor/nodejs/test/
+    aws s3 cp --acl public-read ./SHASUMS.txt.asc              $dest
+    aws s3 cp --acl public-read ./node-v$nv-linux-x64.tar.gz   $dest
+    aws s3 cp --acl public-read ./node-v$nv-darwin-x64.tar.gz  $dest
+    aws s3 cp --acl public-read ./node.exe                     $dest
     rm ./*
 done

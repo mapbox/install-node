@@ -17,7 +17,8 @@
                                     ],
                                     "Effect": "Allow",
                                     "Resource": [
-                                        "arn:aws:s3:::mapbox/vendor/nodejs/*"
+                                        "arn:aws:s3:::mapbox/vendor/nodejs/*",
+                                        "arn:aws:s3:::mapbox/apps/install-node/*"
                                     ]
                                 }
                             ]

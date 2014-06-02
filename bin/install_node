@@ -1,14 +1,18 @@
 #!/bin/bash
 
 set -eu
-
-node_version=$1
-platform=$2
-output_dir=$3
+if [[ -z "${NV+1}" || -z "${NP+1}" || -z "${OD+1}" ]]; then
+    node_version=$1
+    platform=$2
+    output_dir=$3
+else
+    node_version=$NV
+    platform=$NP
+    output_dir=$OD
+fi
 
 # Output info about requested range and resolved node version
-echo "Requested node range:  $semver_range"
-echo "Resolved node version: $node_version"
+echo "Requested node version: $node_version"
 echo "Requested node platform: $platform"
 
 case $platform in
@@ -31,17 +35,24 @@ tmp="$(mktemp -d -t install-node.XXXXXX)"
 trap "rm -rf $tmp" EXIT
 
 cd "$tmp"
+
+wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
+wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
 wget --no-verbose "$url"
 wget --no-verbose "http://nodejs.org/dist/v$node_version/SHASUMS.txt.asc"
 
+# Add trusted gpg keys for verifying nodejs downloads
+gpg --import izs.asc
+gpg --import tjfontaine.asc
+
 # Verify signed SHASUMS file to ensure it can be trusted
 echo "Verifying signature of nodejs SHASUMS.txt.asc"
-gpg --verify < "node-v$node_version-SHASUMS.txt.asc"
+gpg --verify < "SHASUMS.txt.asc"
 
 # Check that shasum of tarball is present
 echo "Verifying nodejs shasum"
 node_shasum="$(shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
-grep "$node_shasum" "node-v$node_version-SHASUMS.txt.asc"
+grep "$node_shasum" "SHASUMS.txt.asc"
 
 if [ "${url##*.}" == "gz" ]; then
     tar --strip-components 1 -xzf "node-v$node_version-linux-x64.tar.gz" --directory "$output_dir"
