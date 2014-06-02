@@ -1,8 +1,9 @@
 language: python
 env:
   global:
+  - AWS_DEFAULT_REGION: us-east-1
   - AWS_ACCESS_KEY_ID: AKIAIQ7FRTC6DN5RT33Q
   - secure: wP8aBI3tvt6TA9vtEuJRqIwB6YBfyQfHS/Z0xh86BeQAnKb5W0GWG8ZS+IW893tW2NcR5vMlFU1bIktJm9C6TwTDi9AwMkV9SUIFXoCxfkRjBAbiwGbtfRCFS9X0fganp/1lArb93K82f6/gxmv0crCzZECdYv8xbBihyJ8hZU8=
-install: 
+install:
 script:
 - "./util/recache"
