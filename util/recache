@@ -25,6 +25,6 @@ for nv in "${versions[@]}"; do
     wget -q "http://nodejs.org/dist/v$nv/node-v$nv-darwin-x64.tar.gz"
     wget -q "http://nodejs.org/dist/v$nv/node.exe"
 
-    aws s3 sync --acl public-read . s3://mapbox/vendor/nodejs/
+    aws s3 sync --acl public-read . s3://mapbox/vendor/nodejs/test/
     rm ./*
 done

@@ -1,0 +1,53 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "install-node Travis user",
+    "Resources": {
+        "InstallNodeCacheUser": {
+            "Type": "AWS::IAM::User",
+            "Properties": {
+                "Policies": [
+                    {
+                        "PolicyName": "install-node-cache",
+                        "PolicyDocument": {
+                            "Statement": [
+                                {
+                                    "Action": [
+                                        "s3:PutObject",
+                                        "s3:PutObjectAcl"
+                                    ],
+                                    "Effect": "Allow",
+                                    "Resource": [
+                                        "arn:aws:s3:::mapbox/vendor/nodejs/*"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "InstallNodeCacheKey": {
+            "Type": "AWS::IAM::AccessKey",
+            "Properties": {
+                "UserName": {
+                    "Ref": "InstallNodeCacheUser"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "BuildAccessKeyId": {
+            "Value": {
+                "Ref": "InstallNodeCacheKey"
+            }
+        },
+        "BuildSecretAccessKey": {
+            "Value": {
+                "Fn::GetAtt": [
+                    "InstallNodeCacheKey",
+                    "SecretAccessKey"
+                ]
+            }
+        }
+    }
+}
