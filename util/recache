@@ -1,22 +1,21 @@
 #!/bin/bash
 
 main="$(dirname $0)/../bin/install_node"
-cache_dir="$(dirname $0)/../cache"
+versions=( $(cat "$(dirname $0)/../cache/node-versions") )
+dest="s3://mapbox/vendor/nodejs/test"
 tmp=$(mktemp -d -t install-node.XXXXXX)
-cd "$tmp"
 
 # Cache app to S3
-gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > ./izs.asc
-gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > ./tjfontaine.asc
+gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$tmp/izs.asc"
+gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$tmp/tjfontaine.asc"
 
-aws s3 cp --acl public-read "$main"           s3://mapbox/apps/install-node/run.sh
-aws s3 cp --acl public-read ./izs.asc         s3://mapbox/apps/install-node/cache/izs.asc
-aws s3 cp --acl public-read ./tjfontaine.asc  s3://mapbox/apps/install-node/cache/tjfontaine.asc
+aws s3 cp --acl public-read "$main"                s3://mapbox/apps/install-node/run.sh
+aws s3 cp --acl public-read "$tmp/izs.asc"         s3://mapbox/apps/install-node/cache/izs.asc
+aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  s3://mapbox/apps/install-node/cache/tjfontaine.asc
+
+cd "$tmp"
 
 # Cache node.js packages to S3
-versions=( $(cat "$cache_dir/node-versions") )
-dest="s3://mapbox/vendor/nodejs/test/"
-
 for nv in "${versions[@]}"; do
     echo "Caching Node.js v$nv to S3"
     wget -q "http://nodejs.org/dist/v$nv/SHASUMS.txt.asc"
@@ -24,9 +23,8 @@ for nv in "${versions[@]}"; do
     wget -q "http://nodejs.org/dist/v$nv/node-v$nv-darwin-x64.tar.gz"
     wget -q "http://nodejs.org/dist/v$nv/node.exe"
 
-    aws s3 cp --acl public-read ./SHASUMS.txt.asc              $dest
-    aws s3 cp --acl public-read ./node-v$nv-linux-x64.tar.gz   $dest
-    aws s3 cp --acl public-read ./node-v$nv-darwin-x64.tar.gz  $dest
-    aws s3 cp --acl public-read ./node.exe                     $dest
-    rm ./*
+    aws s3 cp --acl public-read ./SHASUMS.txt.asc              "$dest/v$nv/"
+    aws s3 cp --acl public-read ./node-v$nv-linux-x64.tar.gz   "$dest/v$nv/"
+    aws s3 cp --acl public-read ./node-v$nv-darwin-x64.tar.gz  "$dest/v$nv/"
+    aws s3 cp --acl public-read ./node.exe                     "$dest/v$nv/"
 done
