@@ -1,16 +1,20 @@
 # install_node
 
-A bash script to install a version of node.js for a platform of your choosing.
+A bash script to install a version of node.js for a platform of your choosing,
+without depending on nodejs.org being available.
 
 ## Usage
 
 ```
-$ install_node <semver> <platform> <dir>
+$ install_node <version> <platform> <dir>
 ```
 
-This will resolve a `semver` range you've given it, find the corresponding node.js
-version for the requested `platform` (one of `linux`, `darwin`, `win32`), and drop
-it into the specified `dir`.
+This will find the corresponding node.js version for the requested `platform`
+(one of `linux`, `darwin`, `win32`), and drop it into the specified `dir`.
+
+## Allowed Versions
+
+See [`cache/node-versions`](https://github.com/mapbox/install-node/blob/master/cache/node-versions).
 
 ## Caveats
 
