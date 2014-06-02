@@ -2,15 +2,9 @@
 
 set -eu
 
-semver_range=$1
+node_version=$1
 platform=$2
 output_dir=$3
-
-base="$(dirname $0)/.."
-node="$base/vendor/nodejs/bin/node"
-
-# Resolve node version using local semver
-node_version=$($node "$base/node_modules/.bin/semver" --range "$semver_range" "$(cat $base/cache/node-versions)" | tail -n 1)
 
 # Output info about requested range and resolved node version
 echo "Requested node range:  $semver_range"
@@ -19,13 +13,13 @@ echo "Requested node platform: $platform"
 
 case $platform in
     "linux")
-        url="http://nodejs.org/dist/v$node_version/node-v$node_version-linux-x64.tar.gz"
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-linux-x64.tar.gz"
         ;;
     "darwin")
-        url="http://nodejs.org/dist/v$node_version/node-v$node_version-darwin-x64.tar.gz"
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-darwin-x64.tar.gz"
         ;;
     "win32")
-        url="http://nodejs.org/dist/v$node_version/node.exe"
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node.exe"
         ;;
     *)
         echo "Not a valid platform. Specify one of linux, darwin or win32"
