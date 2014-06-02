@@ -9,7 +9,7 @@ tmp=$(mktemp -d -t install-node.XXXXXX)
 gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$tmp/izs.asc"
 gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$tmp/tjfontaine.asc"
 
-aws s3 cp --acl public-read "$main"                s3://mapbox/apps/install-node/run.sh
+aws s3 cp --acl public-read "$main"                s3://mapbox/apps/install-node/run
 aws s3 cp --acl public-read "$tmp/izs.asc"         s3://mapbox/apps/install-node/cache/izs.asc
 aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  s3://mapbox/apps/install-node/cache/tjfontaine.asc
 
