@@ -12,6 +12,15 @@ $ install_node <version> <platform> <dir>
 This will find the corresponding node.js version for the requested `platform`
 (one of `linux`, `darwin`, `win32`), and drop it into the specified `dir`.
 
+## Run from S3
+
+Alternately you can pull the script from S3 with `curl` and run it, specifying
+parameters as environment variables:
+
+```
+$ curl https://s3.amazonaws.com/mapbox/apps/install-node/run | NV=0.10.26 NP=linux OD=/usr/local sh
+```
+
 ## Allowed Versions
 
 See [`cache/node-versions`](https://github.com/mapbox/install-node/blob/master/cache/node-versions).
