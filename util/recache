@@ -47,10 +47,10 @@ cd "$tmp"
 for nv in "${versions[@]}"; do
     echo "Caching Node.js v$nv to S3"
 
-    # cachefile SHASUMS.txt.asc $nv
-    # cachefile node-v$nv-linux-x64.tar.gz $nv
-    # cachefile node-v$nv-darwin-x64.tar.gz $nv
-    # cachefile node.exe $nv
+    cachefile SHASUMS.txt.asc $nv
+    cachefile node-v$nv-linux-x64.tar.gz $nv
+    cachefile node-v$nv-darwin-x64.tar.gz $nv
+    cachefile node.exe $nv
 
     rm ./*
 done
