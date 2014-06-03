@@ -6,6 +6,24 @@ versions=( $(cat "$(dirname $0)/../cache/node-versions") )
 dest="s3://mapbox/vendor/nodejs"
 tmp=$(mktemp -d -t install-node.XXXXXX)
 
+function cachefile() {
+    local filename=$1
+    local nv=$2
+
+    wget -q "http://nodejs.org/dist/v$nv/$filename"
+    md5sum "$filename" > "$filename.md5"
+
+    if aws s3 cp "$dest/v$nv/$filename.md5" "./$filename-online.md5" > /dev/null 2>&1; then
+        if md5sum -c $filename-online.md5; then
+            echo "$filename unchanged"
+            return 0
+        fi
+    fi
+
+    aws s3 cp --acl public-read "$filename"      "$dest/v$nv/"
+    aws s3 cp --acl public-read "$filename.md5"  "$dest/v$nv/"
+}
+
 # Cache app to S3
 gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$tmp/izs.asc"
 gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$tmp/tjfontaine.asc"
@@ -19,15 +37,11 @@ cd "$tmp"
 # Cache node.js packages to S3
 for nv in "${versions[@]}"; do
     echo "Caching Node.js v$nv to S3"
-    wget -q "http://nodejs.org/dist/v$nv/SHASUMS.txt.asc"
-    wget -q "http://nodejs.org/dist/v$nv/node-v$nv-linux-x64.tar.gz"
-    wget -q "http://nodejs.org/dist/v$nv/node-v$nv-darwin-x64.tar.gz"
-    wget -q "http://nodejs.org/dist/v$nv/node.exe"
 
-    aws s3 cp --acl public-read ./SHASUMS.txt.asc              "$dest/v$nv/"
-    aws s3 cp --acl public-read ./node-v$nv-linux-x64.tar.gz   "$dest/v$nv/"
-    aws s3 cp --acl public-read ./node-v$nv-darwin-x64.tar.gz  "$dest/v$nv/"
-    aws s3 cp --acl public-read ./node.exe                     "$dest/v$nv/"
+    cachefile SHASUMS.txt.asc $nv
+    cachefile node-v$nv-linux-x64.tar.gz $nv
+    cachefile node-v$nv-darwin-x64.tar.gz $nv
+    cachefile node.exe $nv
 
     rm ./*
 done
