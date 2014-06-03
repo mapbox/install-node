@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -eu
-if [[ -z "${NV+1}" || -z "${NP+1}" || -z "${OD+1}" ]]; then
+if [ -z "${NV+1}" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
     node_version=$1
     platform=$2
     output_dir=$3
