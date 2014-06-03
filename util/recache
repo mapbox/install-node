@@ -4,7 +4,9 @@ set -e
 main="$(dirname $0)/../bin/install_node"
 versions=( $(cat "$(dirname $0)/../cache/node-versions") )
 dest="s3://mapbox/vendor/nodejs"
+apps_dest="s3://mapbox/apps/install-node"
 tmp=$(mktemp -d -t install-node.XXXXXX)
+gitsha=$(cd $(dirname $0)  && git rev-parse HEAD)
 
 function cachefile() {
     local filename=$1
@@ -28,9 +30,16 @@ function cachefile() {
 gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$tmp/izs.asc"
 gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$tmp/tjfontaine.asc"
 
-aws s3 cp --acl public-read "$main"                s3://mapbox/apps/install-node/run
-aws s3 cp --acl public-read "$tmp/izs.asc"         s3://mapbox/apps/install-node/cache/izs.asc
-aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  s3://mapbox/apps/install-node/cache/tjfontaine.asc
+aws s3 cp --acl public-read "$main"                $apps_dest/$gitsha/run
+aws s3 cp --acl public-read "$tmp/izs.asc"         $apps_dest/$gitsha/cache/izs.asc
+aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  $apps_dest/$gitsha/cache/tjfontaine.asc
+
+if git describe --tags --exact-match 2> /dev/null; then
+    tag=$(git describe --tags --exact-match)
+    aws s3 cp --acl public-read "$main"                $apps_dest/$tag/run
+    aws s3 cp --acl public-read "$tmp/izs.asc"         $apps_dest/$tag/cache/izs.asc
+    aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  $apps_dest/$tag/cache/tjfontaine.asc
+fi
 
 cd "$tmp"
 
@@ -38,10 +47,10 @@ cd "$tmp"
 for nv in "${versions[@]}"; do
     echo "Caching Node.js v$nv to S3"
 
-    cachefile SHASUMS.txt.asc $nv
-    cachefile node-v$nv-linux-x64.tar.gz $nv
-    cachefile node-v$nv-darwin-x64.tar.gz $nv
-    cachefile node.exe $nv
+    # cachefile SHASUMS.txt.asc $nv
+    # cachefile node-v$nv-linux-x64.tar.gz $nv
+    # cachefile node-v$nv-darwin-x64.tar.gz $nv
+    # cachefile node.exe $nv
 
     rm ./*
 done
