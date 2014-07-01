@@ -39,7 +39,7 @@ cd "$tmp"
 wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
 wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
 wget --no-verbose "$url"
-wget --no-verbose "http://nodejs.org/dist/v$node_version/SHASUMS.txt.asc"
+wget --no-verbose "http://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/SHASUMS.txt.asc"
 
 # Add trusted gpg keys for verifying nodejs downloads
 gpg --import izs.asc
