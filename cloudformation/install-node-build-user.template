@@ -1,10 +1,11 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "install-node Travis user",
+    "Description": "Travis user for building install-node",
     "Resources": {
         "InstallNodeCacheUser": {
             "Type": "AWS::IAM::User",
             "Properties": {
+                "Path": "/service/",
                 "Policies": [
                     {
                         "PolicyName": "install-node-cache",
