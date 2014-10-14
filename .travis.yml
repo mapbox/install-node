@@ -9,3 +9,6 @@ install:
 script:
 - "./util/recache"
 - "./util/test"
+- sudo mv /usr/bin/gpg /usr/bin/gpg.bak
+- which gpg
+- "./util/test"

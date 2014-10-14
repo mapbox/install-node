@@ -52,15 +52,19 @@ cd "$tmp"
 wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
 wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
 wget --no-verbose "$url"
-wget --no-verbose "http://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/SHASUMS.txt.asc"
+wget --no-verbose "https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/SHASUMS.txt.asc"
 
-# Add trusted gpg keys for verifying nodejs downloads
-gpg --import izs.asc
-gpg --import tjfontaine.asc
+if which gpg > /dev/null; then
+    # Add trusted gpg keys for verifying nodejs downloads
+    gpg --import izs.asc
+    gpg --import tjfontaine.asc
 
-# Verify signed SHASUMS file to ensure it can be trusted
-echo "Verifying signature of nodejs SHASUMS.txt.asc"
-gpg --verify < "SHASUMS.txt.asc"
+    # Verify signed SHASUMS file to ensure it can be trusted
+    echo "Verifying signature of nodejs SHASUMS.txt.asc"
+    gpg --verify < "SHASUMS.txt.asc"
+else
+    echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc"
+fi
 
 # Check that shasum of tarball is present
 echo "Verifying nodejs shasum"
