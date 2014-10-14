@@ -5,18 +5,18 @@ failed="0"
 
 function assertNo() {
     if [ -e $1 ]; then
-        echo "not ok - $1";
+        echo "not ok - notfound $1";
         failed="1"
     else
-        echo "ok - $1"
+        echo "ok - notfound $1"
     fi
 }
 
 function assertOk() {
     if [ -e $1 ]; then
-        echo "ok - $1"
+        echo "ok - found $1"
     else
-        echo "not ok - $1";
+        echo "not ok - found $1";
         failed="1"
     fi
 }
@@ -101,9 +101,50 @@ function successWin() {
     rm -rf $testdir
 }
 
+function successUnixBin() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir true"
+    assertExit0 "$install_node $1 $2 $testdir true"
+    assertOk $testdir/node
+    assertNo $testdir/bin
+    assertNo $testdir/include
+    assertNo $testdir/lib
+    assertNo $testdir/share
+    assertNo $testdir/.npm
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir BO=true assertExit0 "$install_node"
+    assertOk $testdir/node
+    assertNo $testdir/bin
+    assertNo $testdir/include
+    assertNo $testdir/lib
+    assertNo $testdir/share
+    assertNo $testdir/.npm
+    rm -rf $testdir
+}
+
+function successWinBin() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir true"
+    assertExit0 "$install_node $1 $2 $testdir true"
+    assertOk $testdir/node.exe
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir BO=true install_node"
+    NV=$1 NP=$2 OD=$testdir BO=true assertExit0 "$install_node"
+    assertOk $testdir/node.exe
+    rm -rf $testdir
+}
+
 successUnix 0.10.30 linux
 successUnix 0.10.30 darwin
 successWin 0.10.30 win32
+successUnixBin 0.10.30 linux
+successUnixBin 0.10.30 darwin
+successWinBin 0.10.30 win32
 # invalid version
 failure foo.bar linux
 # invalid platform

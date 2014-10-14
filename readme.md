@@ -6,11 +6,14 @@ without depending on nodejs.org being available.
 ## Usage
 
 ```
-$ install_node <version> <platform> <dir>
+$ install_node <version> <platform> <dir> [bin_only=true|false]
 ```
 
 This will find the corresponding node.js version for the requested `platform`
 (one of `linux`, `darwin`, `win32`), and drop it into the specified `dir`.
+
+If the optional fourth `bin_only` arg is set to `true` then only the node binary
+will be installed instead of npm and related resources (headers, man pages, etc.)
 
 ## Run from S3
 
