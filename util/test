@@ -48,6 +48,7 @@ function failure() {
     assertNo $testdir/include/node
     assertNo $testdir/lib/node_modules/npm
     assertNo $testdir/share/man
+    assertNo $testdir/.npm
     rm -rf $testdir
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
@@ -58,6 +59,7 @@ function failure() {
     assertNo $testdir/include/node
     assertNo $testdir/lib/node_modules/npm
     assertNo $testdir/share/man
+    assertNo $testdir/.npm
     rm -rf $testdir
 }
 
@@ -70,6 +72,7 @@ function successUnix() {
     assertOk $testdir/include/node
     assertOk $testdir/lib/node_modules/npm
     assertOk $testdir/share/man
+    assertOk $testdir/.npm
     rm -rf $testdir
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
@@ -80,6 +83,7 @@ function successUnix() {
     assertOk $testdir/include/node
     assertOk $testdir/lib/node_modules/npm
     assertOk $testdir/share/man
+    assertOk $testdir/.npm
     rm -rf $testdir
 }
 

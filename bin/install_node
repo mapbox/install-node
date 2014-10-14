@@ -56,10 +56,10 @@ grep "$node_shasum" "SHASUMS.txt.asc"
 
 if [ "$platform" != "win32" ]; then
     tar --strip-components 1 -xzf "node-v$node_version-$platform-x64.tar.gz" --directory "$output_dir"
+    # Change the location of the npm cache so different versions of node don't interfere with each other
+    mkdir -p "$output_dir/.npm"
+    "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
 else
     cp node.exe "$output_dir/"
 fi
 
-# Change the location of the npm cache so different versions of node don't interfere with each other
-mkdir -p "$output_dir/.npm"
-"$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
