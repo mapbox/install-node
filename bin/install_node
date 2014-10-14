@@ -1,19 +1,32 @@
 #!/bin/bash
 
 set -eu
+
+bin_only="false"
+
 if [ -z "${NV+1}" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
     node_version=$1
     platform=$2
     output_dir=$3
+    if [ -n "${4+1}" ]; then
+        bin_only=$4
+    fi
 else
     node_version=$NV
     platform=$NP
     output_dir=$OD
+    if [ -n "${BO+1}" ]; then
+        bin_only=$BO
+    fi
 fi
 
 # Output info about requested range and resolved node version
 echo "Requested node version: $node_version"
 echo "Requested node platform: $platform"
+
+if [ "$bin_only" == "true" ]; then
+    echo "Requested bin only: $bin_only"
+fi
 
 case $platform in
     "linux")
@@ -55,10 +68,14 @@ node_shasum="$(shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
 grep "$node_shasum" "SHASUMS.txt.asc"
 
 if [ "$platform" != "win32" ]; then
-    tar --strip-components 1 -xzf "node-v$node_version-$platform-x64.tar.gz" --directory "$output_dir"
-    # Change the location of the npm cache so different versions of node don't interfere with each other
-    mkdir -p "$output_dir/.npm"
-    "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
+    if [ "$bin_only" == "true" ]; then
+        tar --strip 2 -xzf "node-v$node_version-$platform-x64.tar.gz" --directory "$output_dir" "node-v$node_version-$platform-x64/bin/node"
+    else
+        tar --strip-components 1 -xzf "node-v$node_version-$platform-x64.tar.gz" --directory "$output_dir"
+        # Change the location of the npm cache so different versions of node don't interfere with each other
+        mkdir -p "$output_dir/.npm"
+        "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
+    fi
 else
     cp node.exe "$output_dir/"
 fi
