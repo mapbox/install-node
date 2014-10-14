@@ -114,7 +114,7 @@ function successUnixBin() {
     rm -rf $testdir
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
-    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    echo "# NV=$1 NP=$2 OD=$testdir BO=true install_node"
     NV=$1 NP=$2 OD=$testdir BO=true assertExit0 "$install_node"
     assertOk $testdir/node
     assertNo $testdir/bin
