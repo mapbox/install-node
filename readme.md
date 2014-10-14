@@ -21,12 +21,14 @@ Alternately you can pull the script from S3 with `curl` and run it, specifying
 parameters as environment variables:
 
 ```
-$ curl https://s3.amazonaws.com/mapbox/apps/install-node/v0.0.3/run | NV=0.10.26 NP=linux OD=/usr/local sh
+$ curl https://s3.amazonaws.com/mapbox/apps/install-node/v0.1.2/run | NV=0.10.26 NP=linux OD=/usr/local sh
 ```
 
 ## Allowed Versions
 
 See [`cache/node-versions`](https://github.com/mapbox/install-node/blob/master/cache/node-versions).
+To add a newly released node version to the mirror add it to this file and commit
+-- it will be cached automatically by travis.
 
 ## Caveats
 
