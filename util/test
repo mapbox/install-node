@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+install_node=$(dirname $0)/../bin/install_node
+
+function assertNo() {
+    if [ -e $1 ]; then
+        echo "not ok $1";
+    else
+        echo "ok $1"
+    fi
+}
+
+function assertOk() {
+    if [ -e $1 ]; then
+        echo "ok $1"
+    else
+        echo "not ok $1";
+    fi
+}
+
+function failure() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir"
+    $install_node $1 $2 $testdir &>/dev/null
+    assertNo $testdir/bin/node
+    assertNo $testdir/bin/npm
+    assertNo $testdir/include/node
+    assertNo $testdir/lib/node_modules/npm
+    assertNo $testdir/share/man
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir $install_node &>/dev/null
+    assertNo $testdir/bin/node
+    assertNo $testdir/bin/npm
+    assertNo $testdir/include/node
+    assertNo $testdir/lib/node_modules/npm
+    assertNo $testdir/share/man
+    rm -rf $testdir
+}
+
+function success() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir"
+    $install_node $1 $2 $testdir &>/dev/null
+    assertOk $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/include/node
+    assertOk $testdir/lib/node_modules/npm
+    assertOk $testdir/share/man
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir $install_node &>/dev/null
+    assertOk $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/include/node
+    assertOk $testdir/lib/node_modules/npm
+    assertOk $testdir/share/man
+    rm -rf $testdir
+}
+
+success 0.10.30 linux
+success 0.10.30 darwin
+failure foo.bar linux
+failure 0.10.30 freebsd
+

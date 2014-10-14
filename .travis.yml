@@ -8,3 +8,4 @@ install:
 - pip install awscli
 script:
 - "./util/recache"
+- "./util/test"
