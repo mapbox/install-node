@@ -5,26 +5,44 @@ failed="0"
 
 function assertNo() {
     if [ -e $1 ]; then
-        echo "not ok $1";
+        echo "not ok - $1";
         failed="1"
     else
-        echo "ok $1"
+        echo "ok - $1"
     fi
 }
 
 function assertOk() {
     if [ -e $1 ]; then
-        echo "ok $1"
+        echo "ok - $1"
     else
-        echo "not ok $1";
+        echo "not ok - $1";
         failed="1"
+    fi
+}
+
+function assertExit0() {
+    if $1 &> /dev/null; then
+        echo "ok - exit 0 $1";
+    else
+        echo "not ok - exit 0 $1";
+        failed="1"
+    fi
+}
+
+function assertExit1() {
+    if $1 &> /dev/null; then
+        echo "not ok - exit 1+ $1";
+        failed="1"
+    else
+        echo "ok - exit 1+ $1";
     fi
 }
 
 function failure() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir"
-    $install_node $1 $2 $testdir &>/dev/null
+    assertExit1 "$install_node $1 $2 $testdir"
     assertNo $testdir/bin/node
     assertNo $testdir/bin/npm
     assertNo $testdir/include/node
@@ -34,7 +52,7 @@ function failure() {
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# NV=$1 NP=$2 OD=$testdir install_node"
-    NV=$1 NP=$2 OD=$testdir $install_node &>/dev/null
+    NV=$1 NP=$2 OD=$testdir assertExit1 "$install_node"
     assertNo $testdir/bin/node
     assertNo $testdir/bin/npm
     assertNo $testdir/include/node
@@ -43,10 +61,10 @@ function failure() {
     rm -rf $testdir
 }
 
-function success() {
+function successUnix() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir"
-    $install_node $1 $2 $testdir &>/dev/null
+    assertExit0 "$install_node $1 $2 $testdir"
     assertOk $testdir/bin/node
     assertOk $testdir/bin/npm
     assertOk $testdir/include/node
@@ -56,7 +74,7 @@ function success() {
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# NV=$1 NP=$2 OD=$testdir install_node"
-    NV=$1 NP=$2 OD=$testdir $install_node &>/dev/null
+    NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
     assertOk $testdir/bin/node
     assertOk $testdir/bin/npm
     assertOk $testdir/include/node
@@ -65,9 +83,11 @@ function success() {
     rm -rf $testdir
 }
 
-success 0.10.30 linux
-success 0.10.30 darwin
+successUnix 0.10.30 linux
+successUnix 0.10.30 darwin
+# invalid version
 failure foo.bar linux
+# invalid platform
 failure 0.10.30 freebsd
 
 if [ "$failed" == "1" ]; then
