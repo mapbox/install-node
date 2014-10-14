@@ -83,8 +83,23 @@ function successUnix() {
     rm -rf $testdir
 }
 
+function successWin() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir"
+    assertExit0 "$install_node $1 $2 $testdir"
+    assertOk $testdir/node.exe
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
+    assertOk $testdir/node.exe
+    rm -rf $testdir
+}
+
 successUnix 0.10.30 linux
 successUnix 0.10.30 darwin
+successWin 0.10.30 win32
 # invalid version
 failure foo.bar linux
 # invalid platform
