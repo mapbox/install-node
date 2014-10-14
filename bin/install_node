@@ -63,7 +63,7 @@ if which gpg > /dev/null; then
     echo "Verifying signature of nodejs SHASUMS.txt.asc"
     gpg --verify < "SHASUMS.txt.asc"
 else
-    echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc"
+    echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc" >&2
 fi
 
 # Check that shasum of tarball is present
