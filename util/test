@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+
+install_node=$(dirname $0)/../bin/install_node
+failed="0"
+
+function assertNo() {
+    if [ -e $1 ]; then
+        echo "not ok - $1";
+        failed="1"
+    else
+        echo "ok - $1"
+    fi
+}
+
+function assertOk() {
+    if [ -e $1 ]; then
+        echo "ok - $1"
+    else
+        echo "not ok - $1";
+        failed="1"
+    fi
+}
+
+function assertExit0() {
+    if $1 &> /dev/null; then
+        echo "ok - exit 0 $1";
+    else
+        echo "not ok - exit 0 $1";
+        failed="1"
+    fi
+}
+
+function assertExit1() {
+    if $1 &> /dev/null; then
+        echo "not ok - exit 1+ $1";
+        failed="1"
+    else
+        echo "ok - exit 1+ $1";
+    fi
+}
+
+function failure() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir"
+    assertExit1 "$install_node $1 $2 $testdir"
+    assertNo $testdir/bin/node
+    assertNo $testdir/bin/npm
+    assertNo $testdir/include/node
+    assertNo $testdir/lib/node_modules/npm
+    assertNo $testdir/share/man
+    assertNo $testdir/.npm
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir assertExit1 "$install_node"
+    assertNo $testdir/bin/node
+    assertNo $testdir/bin/npm
+    assertNo $testdir/include/node
+    assertNo $testdir/lib/node_modules/npm
+    assertNo $testdir/share/man
+    assertNo $testdir/.npm
+    rm -rf $testdir
+}
+
+function successUnix() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir"
+    assertExit0 "$install_node $1 $2 $testdir"
+    assertOk $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/include/node
+    assertOk $testdir/lib/node_modules/npm
+    assertOk $testdir/share/man
+    assertOk $testdir/.npm
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
+    assertOk $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/include/node
+    assertOk $testdir/lib/node_modules/npm
+    assertOk $testdir/share/man
+    assertOk $testdir/.npm
+    rm -rf $testdir
+}
+
+function successWin() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# install_node $1 $2 $testdir"
+    assertExit0 "$install_node $1 $2 $testdir"
+    assertOk $testdir/node.exe
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir install_node"
+    NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
+    assertOk $testdir/node.exe
+    rm -rf $testdir
+}
+
+successUnix 0.10.30 linux
+successUnix 0.10.30 darwin
+successWin 0.10.30 win32
+# invalid version
+failure foo.bar linux
+# invalid platform
+failure 0.10.30 freebsd
+
+if [ "$failed" == "1" ]; then
+    exit 1
+else
+    exit 0
+fi
+
