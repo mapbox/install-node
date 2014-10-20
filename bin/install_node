@@ -49,10 +49,10 @@ trap "rm -rf $tmp" EXIT
 
 cd "$tmp"
 
-wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
-wget --no-verbose "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
-wget --no-verbose "$url"
-wget --no-verbose "https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/SHASUMS.txt.asc"
+curl -Lsfo izs.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
+curl -Lsfo tjfontaine.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
+curl -Lsfo $(basename $url) "$url"
+curl -Lsfo SHASUMS.txt.asc "https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/SHASUMS.txt.asc"
 
 if which gpg > /dev/null; then
     # Add trusted gpg keys for verifying nodejs downloads
