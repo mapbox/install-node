@@ -66,9 +66,18 @@ else
     echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc" >&2
 fi
 
+# RHEL/centos7 does not ship with a parent shasum function.
+# Fallback to sha1sum if not found.
+shasum=""
+if which shasum > /dev/null; then
+    shasum=$(which shasum)
+elif which sha1sum > /dev/null; then
+    shasum=$(which sha1sum)
+fi
+
 # Check that shasum of tarball is present
 echo "Verifying nodejs shasum"
-node_shasum="$(shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
+node_shasum="$($shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
 grep "$node_shasum" "SHASUMS.txt.asc"
 
 if [ "$platform" != "win32" ]; then
