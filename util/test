@@ -21,6 +21,15 @@ function assertOk() {
     fi
 }
 
+function assertMD5() {
+    if [ -e $1 ]; then
+        echo "ok - found $1 $(md5sum $1 | grep -oE '[0-f]{32}')"
+    else
+        echo "not ok - found $1";
+        failed="1"
+    fi
+}
+
 function assertExit0() {
     if $1 &> /dev/null; then
         echo "ok - exit 0 $1";
@@ -67,7 +76,7 @@ function successUnix() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir"
     assertExit0 "$install_node $1 $2 $testdir"
-    assertOk $testdir/bin/node
+    assertMD5 $testdir/bin/node
     assertOk $testdir/bin/npm
     assertOk $testdir/include/node
     assertOk $testdir/lib/node_modules/npm
@@ -78,7 +87,7 @@ function successUnix() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# NV=$1 NP=$2 OD=$testdir install_node"
     NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
-    assertOk $testdir/bin/node
+    assertMD5 $testdir/bin/node
     assertOk $testdir/bin/npm
     assertOk $testdir/include/node
     assertOk $testdir/lib/node_modules/npm
@@ -91,13 +100,13 @@ function successWin() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir"
     assertExit0 "$install_node $1 $2 $testdir"
-    assertOk $testdir/node.exe
+    assertMD5 $testdir/node.exe
     rm -rf $testdir
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# NV=$1 NP=$2 OD=$testdir install_node"
     NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
-    assertOk $testdir/node.exe
+    assertMD5 $testdir/node.exe
     rm -rf $testdir
 }
 
@@ -105,7 +114,7 @@ function successUnixBin() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir true"
     assertExit0 "$install_node $1 $2 $testdir true"
-    assertOk $testdir/node
+    assertMD5 $testdir/node
     assertNo $testdir/bin
     assertNo $testdir/include
     assertNo $testdir/lib
@@ -116,7 +125,7 @@ function successUnixBin() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# NV=$1 NP=$2 OD=$testdir BO=true install_node"
     NV=$1 NP=$2 OD=$testdir BO=true assertExit0 "$install_node"
-    assertOk $testdir/node
+    assertMD5 $testdir/node
     assertNo $testdir/bin
     assertNo $testdir/include
     assertNo $testdir/lib
@@ -129,13 +138,13 @@ function successWinBin() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir true"
     assertExit0 "$install_node $1 $2 $testdir true"
-    assertOk $testdir/node.exe
+    assertMD5 $testdir/node.exe
     rm -rf $testdir
 
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# NV=$1 NP=$2 OD=$testdir BO=true install_node"
     NV=$1 NP=$2 OD=$testdir BO=true assertExit0 "$install_node"
-    assertOk $testdir/node.exe
+    assertMD5 $testdir/node.exe
     rm -rf $testdir
 }
 
