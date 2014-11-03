@@ -140,11 +140,17 @@ function successWinBin() {
 }
 
 successUnix 0.10.30 linux
+successUnix 0.10.30 linux-x64
 successUnix 0.10.30 darwin
+successUnix 0.10.30 darwin-x64
 successWin 0.10.30 win32
+successWin 0.10.30 win32-x64
 successUnixBin 0.10.30 linux
+successUnixBin 0.10.30 linux-x64
 successUnixBin 0.10.30 darwin
+successUnixBin 0.10.30 darwin-x64
 successWinBin 0.10.30 win32
+successWinBin 0.10.30 win32-x64
 # invalid version
 failure foo.bar linux
 # invalid platform

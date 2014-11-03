@@ -32,14 +32,23 @@ case $platform in
     "linux")
         url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-linux-x64.tar.gz"
         ;;
+    "linux-x64")
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-linux-x64.tar.gz"
+        ;;
     "darwin")
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-darwin-x64.tar.gz"
+        ;;
+    "darwin-x64")
         url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-darwin-x64.tar.gz"
         ;;
     "win32")
         url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node.exe"
         ;;
+    "win32-x64")
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/x64/node.exe"
+        ;;
     *)
-        echo "Not a valid platform. Specify one of linux, darwin or win32"
+        echo "Not a valid platform+arch. Specify one of linux|linux-x64|darwin|darwin-x64|win32|win32-x64"
         exit 1
         ;;
 esac
