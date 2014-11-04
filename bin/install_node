@@ -4,6 +4,12 @@ set -eu
 
 bin_only="false"
 
+if [ -n "${INSTALL_NODE_URL+1}" ]; then
+    INSTALL_NODE_URL=$INSTALL_NODE_URL
+else
+    INSTALL_NODE_URL="https://s3.amazonaws.com/mapbox/vendor/nodejs"
+fi
+
 if [ -z "${NV+1}" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
     node_version=$1
     platformarch=$2
@@ -43,16 +49,16 @@ fi
 
 case $platformarch in
     "linux-x64")
-        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-linux-x64.tar.gz"
+        url="$INSTALL_NODE_URL/v$node_version/node-v$node_version-linux-x64.tar.gz"
         ;;
     "darwin-x64")
-        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-darwin-x64.tar.gz"
+        url="$INSTALL_NODE_URL/v$node_version/node-v$node_version-darwin-x64.tar.gz"
         ;;
     "win32-ia32")
-        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node.exe"
+        url="$INSTALL_NODE_URL/v$node_version/node.exe"
         ;;
     "win32-x64")
-        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/x64/node.exe"
+        url="$INSTALL_NODE_URL/v$node_version/x64/node.exe"
         ;;
     *)
         echo "Not a valid platform+arch. Specify one of linux-x64|darwin-x64|win32-ia32|win32-x64"
@@ -65,37 +71,43 @@ trap "rm -rf $tmp" EXIT
 
 cd "$tmp"
 
-curl -Lsfo izs.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
-curl -Lsfo tjfontaine.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
+# Download node
 curl -Lsfo $(basename $url) "$url"
-curl -Lsfo SHASUMS.txt.asc "https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/SHASUMS.txt.asc"
 
-if which gpg > /dev/null; then
-    # Add trusted gpg keys for verifying nodejs downloads
-    gpg --import izs.asc
-    gpg --import tjfontaine.asc
+# Only verify SHASUMS.txt.asc if found.
+if curl -sf "$INSTALL_NODE_URL/v$node_version/SHASUMS.txt.asc" > /dev/null; then
+    curl -Lsfo izs.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
+    curl -Lsfo tjfontaine.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
+    curl -Lsfo SHASUMS.txt.asc "$INSTALL_NODE_URL/v$node_version/SHASUMS.txt.asc"
 
-    # Verify signed SHASUMS file to ensure it can be trusted
-    echo "Verifying signature of nodejs SHASUMS.txt.asc"
-    gpg --verify < "SHASUMS.txt.asc"
-else
-    echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc" >&2
+    if which gpg > /dev/null; then
+        # Add trusted gpg keys for verifying nodejs downloads
+        gpg --import izs.asc
+        gpg --import tjfontaine.asc
+
+        # Verify signed SHASUMS file to ensure it can be trusted
+        echo "Verifying signature of nodejs SHASUMS.txt.asc"
+        gpg --verify < "SHASUMS.txt.asc"
+    else
+        echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc" >&2
+    fi
+
+    # RHEL/centos7 does not ship with a parent shasum function.
+    # Fallback to sha1sum if not found.
+    shasum=""
+    if which shasum > /dev/null; then
+        shasum=$(which shasum)
+    elif which sha1sum > /dev/null; then
+        shasum=$(which sha1sum)
+    fi
+
+    # Check that shasum of tarball is present
+    echo "Verifying nodejs shasum"
+    node_shasum="$($shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
+    grep "$node_shasum" "SHASUMS.txt.asc"
 fi
 
-# RHEL/centos7 does not ship with a parent shasum function.
-# Fallback to sha1sum if not found.
-shasum=""
-if which shasum > /dev/null; then
-    shasum=$(which shasum)
-elif which sha1sum > /dev/null; then
-    shasum=$(which sha1sum)
-fi
-
-# Check that shasum of tarball is present
-echo "Verifying nodejs shasum"
-node_shasum="$($shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
-grep "$node_shasum" "SHASUMS.txt.asc"
-
+# Install node
 if [ "$platformarch" != "win32-ia32" ] && [ "$platformarch" != "win32-x64" ]; then
     if [ "$bin_only" = "true" ]; then
         tar --strip 2 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir" "node-v$node_version-$platformarch/bin/node"
