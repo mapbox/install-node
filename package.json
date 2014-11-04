@@ -1,13 +1,11 @@
 {
   "name": "install-node",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Install node.js",
   "author": "Mapbox",
   "license": "ISC",
+  "private": true,
   "bin": {
     "install_node": "./bin/install_node"
-  },
-  "engines": {
-    "node": "0.10.26"
   }
 }
