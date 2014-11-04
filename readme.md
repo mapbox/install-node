@@ -24,6 +24,16 @@ linux | linux-x64
 darwin | darwin-x64
 win32 | win32-ia32
 
+**Mirror URL**
+
+By default `install_node` will download node from a Mapbox S3 mirror of x64 versions of node.
+
+You can point `install_node` add the official node dist endpoint or your own mirror by using the `INSTALL_NODE_URL` env var.
+
+```
+$ INSTALL_NODE_URL=http://nodejs.org/dist install_node v0.10.33 linux-x64 /usr/local
+```
+
 ## Run from S3
 
 Alternately you can pull the script from S3 with `curl` and run it, specifying
