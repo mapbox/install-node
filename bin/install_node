@@ -6,40 +6,56 @@ bin_only="false"
 
 if [ -z "${NV+1}" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
     node_version=$1
-    platform=$2
+    platformarch=$2
     output_dir=$3
     if [ -n "${4+1}" ]; then
         bin_only=$4
     fi
 else
     node_version=$NV
-    platform=$NP
+    platformarch=$NP
     output_dir=$OD
     if [ -n "${BO+1}" ]; then
         bin_only=$BO
     fi
 fi
 
+# Enforce default arch for legacy arch-free args.
+case $platformarch in
+    "linux")
+        platformarch="linux-x64"
+        ;;
+    "darwin")
+        platformarch="darwin-x64"
+        ;;
+    "win32")
+        platformarch="win32-ia32"
+        ;;
+esac
+
 # Output info about requested range and resolved node version
 echo "Requested node version: $node_version"
-echo "Requested node platform: $platform"
+echo "Requested node platform+arch: $platformarch"
 
 if [ "$bin_only" = "true" ]; then
     echo "Requested bin only: $bin_only"
 fi
 
-case $platform in
-    "linux")
+case $platformarch in
+    "linux-x64")
         url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-linux-x64.tar.gz"
         ;;
-    "darwin")
+    "darwin-x64")
         url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node-v$node_version-darwin-x64.tar.gz"
         ;;
-    "win32")
+    "win32-ia32")
         url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/node.exe"
         ;;
+    "win32-x64")
+        url="https://s3.amazonaws.com/mapbox/vendor/nodejs/v$node_version/x64/node.exe"
+        ;;
     *)
-        echo "Not a valid platform. Specify one of linux, darwin or win32"
+        echo "Not a valid platform+arch. Specify one of linux-x64|darwin-x64|win32-ia32|win32-x64"
         exit 1
         ;;
 esac
@@ -80,11 +96,11 @@ echo "Verifying nodejs shasum"
 node_shasum="$($shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
 grep "$node_shasum" "SHASUMS.txt.asc"
 
-if [ "$platform" != "win32" ]; then
+if [ "$platformarch" != "win32-ia32" ] && [ "$platformarch" != "win32-x64" ]; then
     if [ "$bin_only" = "true" ]; then
-        tar --strip 2 -xzf "node-v$node_version-$platform-x64.tar.gz" --directory "$output_dir" "node-v$node_version-$platform-x64/bin/node"
+        tar --strip 2 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir" "node-v$node_version-$platformarch/bin/node"
     else
-        tar --strip-components 1 -xzf "node-v$node_version-$platform-x64.tar.gz" --directory "$output_dir"
+        tar --strip-components 1 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir"
         # Change the location of the npm cache so different versions of node don't interfere with each other
         mkdir -p "$output_dir/.npm"
         "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"

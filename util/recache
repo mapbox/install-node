@@ -11,20 +11,21 @@ gitsha=$(cd $(dirname $0)  && git rev-parse HEAD)
 
 function cachefile() {
     local filename=$1
+    local localname=$(echo $1 | tr '/' '-')
     local nv=$2
 
-    wget -q "http://nodejs.org/dist/v$nv/$filename"
-    md5sum "$filename" > "$filename.md5"
+    wget -q -O $localname "http://nodejs.org/dist/v$nv/$filename"
+    md5sum "$localname" > "$localname.md5"
 
-    if aws s3 cp "$dest/v$nv/$filename.md5" "./$filename-online.md5" > /dev/null 2>&1; then
-        if md5sum -c $filename-online.md5; then
+    if aws s3 cp "$dest/v$nv/$filename.md5" "./$localname-online.md5" > /dev/null 2>&1; then
+        if md5sum -c $localname-online.md5; then
             echo "$filename unchanged"
             return 0
         fi
     fi
 
-    aws s3 cp --acl public-read "$filename"      "$dest/v$nv/"
-    aws s3 cp --acl public-read "$filename.md5"  "$dest/v$nv/"
+    aws s3 cp --acl public-read "$localname"      "$dest/v$nv/$filename"
+    aws s3 cp --acl public-read "$localname.md5"  "$dest/v$nv/$filename.md5"
 }
 
 # Cache app to S3
@@ -51,6 +52,7 @@ for nv in "${versions[@]}"; do
     cachefile node-v$nv-linux-x64.tar.gz $nv
     cachefile node-v$nv-darwin-x64.tar.gz $nv
     cachefile node.exe $nv
+    cachefile x64/node.exe $nv
 
     rm ./*
 done
