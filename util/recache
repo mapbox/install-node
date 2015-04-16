@@ -31,12 +31,10 @@ function cachefile() {
 # Cache app to S3
 gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$tmp/izs.asc"
 gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$tmp/tjfontaine.asc"
-gpg -q --keyserver pgp.mit.edu --recv-keys 888C628D && gpg --export --armor 888C628D > "$tmp/jgilli.asc"
 
 aws s3 cp --acl public-read "$main_file"           $apps_dest/$gitsha/run
 aws s3 cp --acl public-read "$tmp/izs.asc"         $apps_dest/cache/
 aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  $apps_dest/cache/
-aws s3 cp --acl public-read "$tmp/jgilli.asc"      $apps_dest/cache/
 aws s3 cp --acl public-read "$version_file"        $apps_dest/cache/
 
 if git describe --tags --exact-match 2> /dev/null; then
