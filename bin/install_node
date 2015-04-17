@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/bin/bash 
 set -eu
 
 bin_only="false"
@@ -73,39 +72,6 @@ cd "$tmp"
 
 # Download node
 curl -Lsfo $(basename $url) "$url"
-
-# Only verify SHASUMS.txt.asc if found.
-if curl -sf "$INSTALL_NODE_URL/v$node_version/SHASUMS.txt.asc" > /dev/null; then
-    curl -Lsfo izs.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/izs.asc"
-    curl -Lsfo tjfontaine.asc "https://s3.amazonaws.com/mapbox/apps/install-node/cache/tjfontaine.asc"
-    curl -Lsfo SHASUMS.txt.asc "$INSTALL_NODE_URL/v$node_version/SHASUMS.txt.asc"
-
-    if which gpg > /dev/null; then
-        # Add trusted gpg keys for verifying nodejs downloads
-        gpg --import izs.asc
-        gpg --import tjfontaine.asc
-
-        # Verify signed SHASUMS file to ensure it can be trusted
-        echo "Verifying signature of nodejs SHASUMS.txt.asc"
-        gpg --verify < "SHASUMS.txt.asc"
-    else
-        echo "WARNING: gpg not found. Installing node without verifying SHASUMS.txt.asc" >&2
-    fi
-
-    # RHEL/centos7 does not ship with a parent shasum function.
-    # Fallback to sha1sum if not found.
-    shasum=""
-    if which shasum > /dev/null; then
-        shasum=$(which shasum)
-    elif which sha1sum > /dev/null; then
-        shasum=$(which sha1sum)
-    fi
-
-    # Check that shasum of tarball is present
-    echo "Verifying nodejs shasum"
-    node_shasum="$($shasum $(basename $url) | grep -oE '^[0-9a-f]+')"
-    grep "$node_shasum" "SHASUMS.txt.asc"
-fi
 
 # Install node
 if [ "$platformarch" != "win32-ia32" ] && [ "$platformarch" != "win32-x64" ]; then
