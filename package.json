@@ -1,6 +1,6 @@
 {
   "name": "install-node",
-  "version": "1.0.0-dev",
+  "version": "1.0.0",
   "description": "Install node.js",
   "author": "Mapbox",
   "license": "ISC",
