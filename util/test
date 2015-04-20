@@ -155,10 +155,13 @@ INSTALL_NODE_URL=http://nodejs.org/dist successUnix 0.10.33 linux
 # normal s3 mirror
 successUnix 0.10.30 linux
 successUnix 0.10.30 linux-x64
+successUnix 0.12.2 linux
 successUnix 0.10.30 darwin
 successUnix 0.10.30 darwin-x64
+successUnix 0.12.2 darwin
 successWin 0.10.30 win32
 successWin 0.10.30 win32-x64
+successWin 0.12.2 win32
 successUnixBin 0.10.30 linux
 successUnixBin 0.10.30 linux-x64
 successUnixBin 0.10.30 darwin
