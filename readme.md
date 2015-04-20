@@ -45,9 +45,12 @@ $ curl https://s3.amazonaws.com/mapbox/apps/install-node/v0.2.0/run | NV=0.10.33
 
 ## Allowed Versions
 
-See [`cache/node-versions`](https://github.com/mapbox/install-node/blob/master/cache/node-versions).
-To add a newly released node version to the mirror add it to this file and commit
+Look for a file `node-versions` in the [`cache/v#/node-versions`](https://github.com/mapbox/install-node/blob/master/cache). The number after `v#/` corresponds with the major version number that install-node is currently on (found in package.json).
+
+To add a newly released node version to the mirror add it to the most recent `node-versions` file and commit
 -- it will be cached automatically by travis.
+
+If you need to update `install_node` to support a new release of node that isn't currently supported, you will need to bump the major version, start a new `v#/node-versions` list with the new node version and update buildpack.
 
 ## Caveats
 
