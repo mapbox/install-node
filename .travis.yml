@@ -1,14 +1,16 @@
-language: python
+language: node_js
+node_js:
+- '0.10'
 env:
   global:
   - AWS_DEFAULT_REGION: us-east-1
   - secure: b+YkS7X50BYrj6/mrKAVkZ8AxjXm1CmHufNUTl3+rp1ktyPubqBSiTOKc/6Zfakdj/77GWTw1q7fGisoScmNKPYvHScQvwBgxWVJD9ZrGqXg6TjSxoD2Iwu7VTB8znrWFCqL7eWJ2/e8cVn4Vdlbxmltsyjy8NY2LVCtJbv/uoQ=
   - secure: V+R+Q0GdZeqpX3A/XeVaQaXJDst8AE/VpwTFI7aIxiHWSYmzD7aoyGLW3bv2DZYOMM8x9XPIxvHlF3yIy5I9G55UMdW0Goi/vK2KiXXSLzV0C4DnS0KPyhNTjPJ5LSWYOWUEcgrsouvPkxMF072WCe1C0+A1JCWcD4mscPB6MR0=
 install:
-- pip install awscli
+- pip install awscli --user && export PATH=$PATH:~/.local/bin/
 script:
 - "./util/recache"
-- "./util/test"
+- npm test
 - sudo mv /usr/bin/gpg /usr/bin/gpg.bak
 - which gpg || echo "Testing without GPG"
-- "./util/test"
+- npm test

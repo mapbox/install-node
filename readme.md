@@ -55,3 +55,14 @@ If you need to update `install_node` to support a new release of node that isn't
 ## Caveats
 
 - win32 version is nothing but `node.exe`. Plan accordingly.
+
+## Development
+### Tests
+
+- `npm test`
+
+### Push new install_node and node versions to S3
+
+- Make sure your shell is authenticated with AWS
+- Alter S3 destinations if necessary in `./util/recache`
+- Run `./util/recache`

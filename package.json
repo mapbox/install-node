@@ -5,6 +5,9 @@
   "author": "Mapbox",
   "license": "ISC",
   "private": true,
+  "scripts": {
+    "test": "for file in ./test/test_*.sh; do $file; done"
+  },
   "bin": {
     "install_node": "./bin/install_node"
   }
