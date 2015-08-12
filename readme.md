@@ -34,6 +34,17 @@ You can point `install_node` add the official node dist endpoint or your own mir
 $ INSTALL_NODE_URL=http://nodejs.org/dist install_node v0.10.33 linux-x64 /usr/local
 ```
 
+## Environment variables
+
+Instead of [above](#Usage) command line interface you can also use environment variables for configuration:
+
+name | description
+-----|------------
+`NV` | node version to install, like `0.10.33`
+`NP` | platform architecture to install for, like `linux-x64`
+`OD` | output directory to install node to
+`BO` | if set to `true`, install only binaries
+
 ## Run from S3
 
 Alternately you can pull the script from S3 with `curl` and run it, specifying
