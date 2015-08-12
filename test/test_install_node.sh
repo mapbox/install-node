@@ -5,7 +5,7 @@ failed="0"
 
 function assertNo() {
     if [ -e $1 ]; then
-        echo "not ok - notfound $1";
+        echo "not ok - notfound $1"
         failed="1"
     else
         echo "ok - notfound $1"
@@ -16,7 +16,16 @@ function assertOk() {
     if [ -e $1 ]; then
         echo "ok - found $1"
     else
-        echo "not ok - found $1";
+        echo "not ok - found $1"
+        failed="1"
+    fi
+}
+
+function assertEqual() {
+    if [[ "$1" = "$2" ]]; then
+        echo "ok - $1 is equal to $2"
+    else
+        echo "not ok - $1 is equal to $2"
         failed="1"
     fi
 }
@@ -25,26 +34,26 @@ function assertMD5() {
     if [ -e $1 ]; then
         echo "ok - found $1 $(md5sum $1 | grep -oE '[0-f]{32}')"
     else
-        echo "not ok - found $1";
+        echo "not ok - found $1"
         failed="1"
     fi
 }
 
 function assertExit0() {
     if $1 &> /dev/null; then
-        echo "ok - exit 0 $1";
+        echo "ok - exit 0 $1"
     else
-        echo "not ok - exit 0 $1";
+        echo "not ok - exit 0 $1"
         failed="1"
     fi
 }
 
 function assertExit1() {
     if $1 &> /dev/null; then
-        echo "not ok - exit 1+ $1";
+        echo "not ok - exit 1+ $1"
         failed="1"
     else
-        echo "ok - exit 1+ $1";
+        echo "ok - exit 1+ $1"
     fi
 }
 
@@ -94,6 +103,58 @@ function successUnix() {
     assertOk $testdir/share/man
     assertOk $testdir/.npm
     rm -rf $testdir
+}
+
+function successUnixCaching() {
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    local cachedir=$(mktemp -d -t test-install-node-cache.XXXXXX)
+    echo "# install_node $1 $2 $testdir false $cachedir (with cold cache)"
+    assertNo $cachedir/node-v$1-$2.tar.gz
+    assertExit0 "$install_node $1 $2 $testdir false $cachedir"
+    assertOk $cachedir/node-v$1-$2.tar.gz
+    assertMD5 $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/.npm
+    rm -rf $testdir
+
+    echo "# install_node $1 $2 $testdir false $cachedir (with hot cache)"
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    assertOk $cachedir/node-v$1-$2.tar.gz
+    touch -t 1504010100 $cachedir/node-v$1-$2.tar.gz
+    local old_time=$(stat -f %m $cachedir/node-v$1-$2.tar.gz)
+    assertExit0 "$install_node $1 $2 $testdir false $cachedir"
+    assertOk $cachedir/node-v$1-$2.tar.gz
+    assertEqual $old_time $(stat -f %m $cachedir/node-v$1-$2.tar.gz)
+    assertMD5 $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/.npm
+    rm -rf $testdir
+    rm -rf $cachedir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    local cachedir=$(mktemp -d -t test-install-node-cache.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir CD=$cachedir install_node (with cold cache)"
+    assertNo $cachedir/node-v$1-$2.tar.gz
+    NV=$1 NP=$2 OD=$testdir CD=$cachedir assertExit0 "$install_node"
+    assertOk $cachedir/node-v$1-$2.tar.gz
+    assertMD5 $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/.npm
+    rm -rf $testdir
+
+    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
+    echo "# NV=$1 NP=$2 OD=$testdir CD=$cachedir install_node (with hot cache)"
+    assertOk $cachedir/node-v$1-$2.tar.gz
+    touch -t 1504010100 $cachedir/node-v$1-$2.tar.gz
+    local old_time=$(stat -f %m $cachedir/node-v$1-$2.tar.gz)
+    NV=$1 NP=$2 OD=$testdir CD=$cachedir assertExit0 "$install_node"
+    assertOk $cachedir/node-v$1-$2.tar.gz
+    assertEqual $old_time $(stat -f %m $cachedir/node-v$1-$2.tar.gz)
+    assertMD5 $testdir/bin/node
+    assertOk $testdir/bin/npm
+    assertOk $testdir/.npm
+    rm -rf $testdir
+    rm -rf $cachedir
 }
 
 function successWin() {
@@ -155,6 +216,7 @@ INSTALL_NODE_URL=http://nodejs.org/dist successUnix 0.10.33 linux
 # normal s3 mirror
 successUnix 0.10.30 linux
 successUnix 0.10.30 linux-x64
+successUnixCaching 0.10.30 linux-x64
 successUnix 0.12.2 linux
 successUnix 0.10.30 darwin
 successUnix 0.10.30 darwin-x64

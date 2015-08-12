@@ -6,7 +6,7 @@ without depending on nodejs.org being available.
 ## Usage
 
 ```
-$ install_node <version> <platform+arch> <dir> [bin_only=true|false]
+$ install_node <version> <platform+arch> <dir> [bin_only=true|false] [cache_dir=false|<dir>]
 ```
 
 This will find the corresponding node.js version for the requested `platform+arch`
@@ -14,6 +14,8 @@ This will find the corresponding node.js version for the requested `platform+arc
 
 If the optional fourth `bin_only` arg is set to `true` then only the node binary
 will be installed instead of npm and related resources (headers, man pages, etc.)
+
+If the optional fifth `cache_dir` arg is set to a directory, already downloaded node versions will be read-through cached there for future use.
 
 *Note: the legacy platform (without arch) arguments `linux`, `darwin`, `win32` are
 mapped to the following for backwards compatibility.*
@@ -44,6 +46,7 @@ name | description
 `NP` | platform architecture to install for, like `linux-x64`
 `OD` | output directory to install node to
 `BO` | if set to `true`, install only binaries
+`CD` | if set, use a local cache directory as read-through cache for downloads
 
 ## Run from S3
 

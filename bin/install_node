@@ -2,6 +2,7 @@
 set -eu
 
 bin_only="false"
+cache_dir="false"
 
 if [ -n "${INSTALL_NODE_URL+1}" ]; then
     INSTALL_NODE_URL=$INSTALL_NODE_URL
@@ -16,12 +17,18 @@ if [ -z "${NV+1}" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
     if [ -n "${4+1}" ]; then
         bin_only=$4
     fi
+    if [ -n "${5+1}" ]; then
+        cache_dir=$5
+    fi
 else
     node_version=$NV
     platformarch=$NP
     output_dir=$OD
     if [ -n "${BO+1}" ]; then
         bin_only=$BO
+    fi
+    if [ -n "${CD+1}" ]; then
+        cache_dir=$CD
     fi
 fi
 
@@ -71,7 +78,20 @@ trap "rm -rf $tmp" EXIT
 cd "$tmp"
 
 # Download node
-curl -Lsfo $(basename $url) "$url"
+if [[ "$cache_dir" != "false" && "$platformarch" != "win32-ia32" && "$platformarch" != "win32-x64" ]]; then
+    # Let's cache
+    if [ -e "$cache_dir/$(basename $url)" ]; then
+        # Cache HIT
+        ln -s "$cache_dir/$(basename $url)" "./$(basename $url)"
+    else
+        # Cache MISS
+        curl -Lsfo "$cache_dir/$(basename $url)" "$url"
+        ln -s "$cache_dir/$(basename $url)" "./$(basename $url)"
+    fi
+else
+    # No cache
+    curl -Lsfo "$(basename $url)" "$url"
+fi
 
 # Install node
 if [ "$platformarch" != "win32-ia32" ] && [ "$platformarch" != "win32-x64" ]; then
