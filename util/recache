@@ -51,10 +51,12 @@ if which gpg > /dev/null; then
     gpg -q --keyserver pgp.mit.edu --recv-keys 6C481CF6 && gpg --export --armor 6C481CF6 > "$tmp/izs.asc"
     gpg -q --keyserver pgp.mit.edu --recv-keys 0246406D && gpg --export --armor 0246406D > "$tmp/tjfontaine.asc"
     gpg -q --keyserver pgp.mit.edu --recv-keys 888C628D && gpg --export --armor 888C628D > "$tmp/jgilli.asc"
+    gpg -q --keyserver pgp.mit.edu --recv-keys 7D83545D && gpg --export --armor 7D83545D > "$tmp/rvagg.asc"
 
     gpg --import "$tmp/izs.asc"
     gpg --import "$tmp/tjfontaine.asc"
     gpg --import "$tmp/jgilli.asc"
+    gpg --import "$tmp/rvagg.asc"
 else
     echo "!WARN! gpg not found. Please install and try again" && exit 1
 fi
@@ -63,6 +65,7 @@ aws s3 cp --acl public-read "$main_file"           $apps_dest/$gitsha/run
 aws s3 cp --acl public-read "$tmp/izs.asc"         $apps_dest/cache/
 aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  $apps_dest/cache/
 aws s3 cp --acl public-read "$tmp/jgilli.asc"      $apps_dest/cache/
+aws s3 cp --acl public-read "$tmp/rvagg.asc"       $apps_dest/cache/
 aws s3 cp --acl public-read "$version_file"        $apps_dest/cache/v${install_v}/
 
 if git describe --tags --exact-match 2> /dev/null; then
@@ -78,7 +81,13 @@ for nv in "${versions[@]}"; do
 
     # Verify signed SHASUMS file to ensure it can be trusted
     SHASUMFILE="SHASUMS.txt.asc"
-    wget -q -O $SHASUMFILE "http://nodejs.org/dist/v$nv/$SHASUMFILE"
+    if ! wget -q -O $SHASUMFILE "http://nodejs.org/dist/v$nv/$SHASUMFILE"; then
+        echo "$SHASUMFILE not found"
+        SHASUMFILE="SHASUMS256.txt.asc"
+        if ! wget -q -O $SHASUMFILE "http://nodejs.org/dist/v$nv/$SHASUMFILE"; then
+            echo "$SHASUMFILE not found. No SHASUM file found for v$nv, exiting." && exit 1
+        fi
+    fi
 
     echo "Verifying signature of nodejs SHASUMS.txt.asc"
     gpg --verify < $SHASUMFILE
