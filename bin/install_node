@@ -46,6 +46,7 @@ if [ "$bin_only" = "true" ]; then
     echo "Requested bin only: $bin_only"
 fi
 
+majorv="$(echo $node_version | cut -c 1)"
 case $platformarch in
     "linux-x64")
         url="$INSTALL_NODE_URL/v$node_version/node-v$node_version-linux-x64.tar.gz"
@@ -54,10 +55,18 @@ case $platformarch in
         url="$INSTALL_NODE_URL/v$node_version/node-v$node_version-darwin-x64.tar.gz"
         ;;
     "win32-ia32")
-        url="$INSTALL_NODE_URL/v$node_version/node.exe"
+        if [ $majorv -lt 4 ]; then
+            url="$INSTALL_NODE_URL/v$node_version/node.exe"
+        else
+            url="$INSTALL_NODE_URL/v$node_version/win-x86/node.exe"
+        fi
         ;;
     "win32-x64")
-        url="$INSTALL_NODE_URL/v$node_version/x64/node.exe"
+        if [ $majorv -lt 4 ]; then
+            url="$INSTALL_NODE_URL/v$node_version/x64/node.exe"
+        else
+            url="$INSTALL_NODE_URL/v$node_version/win-x64/node.exe"
+        fi
         ;;
     *)
         echo "Not a valid platform+arch. Specify one of linux-x64|darwin-x64|win32-ia32|win32-x64"
