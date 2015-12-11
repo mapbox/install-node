@@ -72,7 +72,7 @@ if which gpg > /dev/null; then
 else
     echo "!WARN! gpg not found. Please install and try again" && exit 1
 fi
- 
+
 aws s3 cp --acl public-read "$main_file"           $apps_dest/$gitsha/run
 aws s3 cp --acl public-read "$tmp/izs.asc"         $apps_dest/cache/
 aws s3 cp --acl public-read "$tmp/tjfontaine.asc"  $apps_dest/cache/
