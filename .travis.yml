@@ -12,4 +12,7 @@ script:
 - sudo mv /usr/bin/gpg /usr/bin/gpg.bak
 - which gpg || echo "Testing without GPG"
 - "./util/test"
-- sudo rm $(which curl) && "./util/test"
+- sudo mv $(which curl) $(which curl).bak
+- which curl || echo "Testing without curl"
+- "./util/test"
+
