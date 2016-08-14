@@ -80,7 +80,14 @@ trap "rm -rf $tmp" EXIT
 cd "$tmp"
 
 # Download node
-curl -Lsfo $(basename $url) "$url"
+if type curl > /dev/null; then
+    curl -Lsfo $(basename $url) "$url"
+elif type wget > /dev/null; then
+    wget -qO $(basename $url) "$url"
+else
+    echo "Either curl or wget required for install-node"
+    exit 1
+fi
 
 # Install node
 if [ "$platformarch" != "win32-ia32" ] && [ "$platformarch" != "win32-x64" ]; then
