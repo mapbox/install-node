@@ -40,7 +40,7 @@ Alternately you can pull the script from S3 with `curl` and run it, specifying
 parameters as environment variables:
 
 ```
-$ curl https://s3.amazonaws.com/mapbox/apps/install-node/v2.0.0/run | NV=4.4.2 NP=linux-x64 OD=/usr/local sh
+$ curl https://s3.amazonaws.com/mapbox/apps/install-node/v2.3.1/run | NV=4.4.2 NP=linux-x64 OD=/usr/local sh
 ```
 
 ## Allowed Versions
