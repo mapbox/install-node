@@ -55,3 +55,7 @@ If you need to update `install_node` to support a new release of node that isn't
 ## Caveats
 
 - win32 version is nothing but `node.exe`. Plan accordingly.
+
+## Keys
+
+Keys in recache are gotten from an older version of https://github.com/nodejs/node#release-keys
