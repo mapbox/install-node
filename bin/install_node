@@ -76,7 +76,7 @@ fi
 if [ "$bin_only" = "true" ]; then
     tar --strip 2 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir" "node-v$node_version-$platformarch/bin/node"
 else
-    tar --strip-components 1 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir"
+    tar --strip-components 1 -xzf "node-v$node_version-$platformarch.tar.gz" --no-same-owner --directory "$output_dir"
     # Change the location of the npm cache so different versions of node don't interfere with each other
     mkdir -p "$output_dir/.npm"
     "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
