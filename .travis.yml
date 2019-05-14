@@ -15,4 +15,3 @@ script:
 - sudo mv $(which curl) $(which curl).bak
 - which curl || echo "Testing without curl"
 - "./util/test"
-

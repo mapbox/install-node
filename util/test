@@ -96,20 +96,6 @@ function successUnix() {
     rm -rf $testdir
 }
 
-function successWin() {
-    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
-    echo "# install_node $1 $2 $testdir"
-    assertExit0 "$install_node $1 $2 $testdir"
-    assertMD5 $testdir/node.exe
-    rm -rf $testdir
-
-    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
-    echo "# NV=$1 NP=$2 OD=$testdir install_node"
-    NV=$1 NP=$2 OD=$testdir assertExit0 "$install_node"
-    assertMD5 $testdir/node.exe
-    rm -rf $testdir
-}
-
 function successUnixBin() {
     local testdir=$(mktemp -d -t test-install-node.XXXXXX)
     echo "# install_node $1 $2 $testdir true"
@@ -134,42 +120,13 @@ function successUnixBin() {
     rm -rf $testdir
 }
 
-function successWinBin() {
-    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
-    echo "# install_node $1 $2 $testdir true"
-    assertExit0 "$install_node $1 $2 $testdir true"
-    assertMD5 $testdir/node.exe
-    rm -rf $testdir
-
-    local testdir=$(mktemp -d -t test-install-node.XXXXXX)
-    echo "# NV=$1 NP=$2 OD=$testdir BO=true install_node"
-    NV=$1 NP=$2 OD=$testdir BO=true assertExit0 "$install_node"
-    assertMD5 $testdir/node.exe
-    rm -rf $testdir
-}
-
-# use node-cpp11
-INSTALL_NODE_URL=https://mapbox.s3.amazonaws.com/node-cpp11 successWinBin 0.10.33 win32-x64
 # official dist
-INSTALL_NODE_URL=http://nodejs.org/dist successUnix 0.10.33 linux
+INSTALL_NODE_URL=http://nodejs.org/dist successUnix 10.15.3 linux
 # normal s3 mirror
-successUnix 0.10.30 linux
-successUnix 0.10.30 linux-x64
-successUnix 0.12.2 linux
-successUnix 5.0.0 linux
-successUnix 0.10.30 darwin
-successUnix 0.10.30 darwin-x64
-successUnix 0.12.2 darwin
-successWin 0.10.30 win32
-successWin 0.10.30 win32-x64
-successWin 0.12.2 win32
-successWin 5.0.0 win32
-successUnixBin 0.10.30 linux
-successUnixBin 0.10.30 linux-x64
-successUnixBin 0.10.30 darwin
-successUnixBin 0.10.30 darwin-x64
-successWinBin 0.10.30 win32
-successWinBin 0.10.30 win32-x64
+successUnix 10.15.3 linux
+successUnix 10.15.3 linux-x64
+successUnix 10.15.3 darwin
+successUnix 10.15.3 darwin-x64
 # invalid version
 failure foo.bar linux
 # invalid platform
@@ -180,4 +137,3 @@ if [ "$failed" == "1" ]; then
 else
     exit 0
 fi
-
