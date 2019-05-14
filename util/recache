@@ -86,7 +86,7 @@ if git describe --tags --exact-match 2> /dev/null; then
     tag=$(git describe --tags --exact-match)
     aws s3 cp --acl public-read "$main_file" $apps_dest/$tag/run
     # latest major versions tagged always available at v${install_v}-latest
-    aws s3 cp --acl public-read "$main_file" $apps_dest/v${install_v}-latest/run
+    aws s3 cp --acl public-read "$main_file" $apps_dest/latest/run
 fi
 
 cd "$tmp"
