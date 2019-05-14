@@ -56,5 +56,5 @@ Update the v3 cache file, and on commit, new versions added will be cached by th
 ## v3 Changes
 
 - Deprecated Windows support
-- Carbon TLS (v8) and later only
+- Carbon LTS (v8) and later only
 - Updated nodejs team package signatures
