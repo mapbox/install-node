@@ -16,13 +16,6 @@ if [ -z "${NV+1}" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
     if [ -n "${4+1}" ]; then
         bin_only=$4
     fi
-elif [ -z "latest-lts" -o -z "${NP+1}" -o -z "${OD+1}" ]; then
-  node_version="10.15.3"
-  platformarch=$2
-  output_dir=$3
-  if [ -n "${4+1}" ]; then
-      bin_only=$4
-  fi
 else
     node_version=$NV
     platformarch=$NP
@@ -59,7 +52,7 @@ case $platformarch in
         url="$INSTALL_NODE_URL/v$node_version/node-v$node_version-darwin-x64.tar.gz"
         ;;
     *)
-        echo "Not a valid platform+arch. Specify one of linux-x64|darwin-x64"
+        echo "Not a valid platform+arch. Specify one of linux-x64|darwin-x64|win32-ia32|win32-x64"
         exit 1
         ;;
 esac
@@ -80,11 +73,15 @@ else
 fi
 
 # Install node
-if [ "$bin_only" = "true" ]; then
-    tar --strip 2 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir" "node-v$node_version-$platformarch/bin/node"
+if [ "$platformarch" != "win32-ia32" ] && [ "$platformarch" != "win32-x64" ]; then
+    if [ "$bin_only" = "true" ]; then
+        tar --strip 2 -xzf "node-v$node_version-$platformarch.tar.gz" --directory "$output_dir" "node-v$node_version-$platformarch/bin/node"
+    else
+        tar --strip-components 1 -xzf "node-v$node_version-$platformarch.tar.gz" --no-same-owner --directory "$output_dir"
+        # Change the location of the npm cache so different versions of node don't interfere with each other
+        mkdir -p "$output_dir/.npm"
+        "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
+    fi
 else
-    tar --strip-components 1 -xzf "node-v$node_version-$platformarch.tar.gz" --no-same-owner --directory "$output_dir"
-    # Change the location of the npm cache so different versions of node don't interfere with each other
-    mkdir -p "$output_dir/.npm"
-    "$output_dir/lib/node_modules/npm/configure" --cache="$output_dir/.npm"
+    cp node.exe "$output_dir/"
 fi
