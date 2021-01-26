@@ -1,5 +1,7 @@
 # install_node
 
+[![Build Status](https://travis-ci.com/mapbox/install-node.svg?branch=master)](https://travis-ci.com/mapbox/install-node)
+
 A bash script to install a version of node.js for a platform of your choosing, without depending on nodejs.org being available.
 
 In addition, nodejs binaries cached by Mapbox have had their signatures and shasums verified before being cached.
