@@ -13,7 +13,7 @@ The latest version of the `install-node` script is always available at `https://
 You should install the script from S3 with `curl` or `wget` and run it, specifying parameters as environment variables:
 
 ```
-$ curl https://mapbox.s3.amazonaws.com/apps/install-node/latest/run | NV=14.15.4 NP=linux-x64 OD=/usr/local sh
+$ curl https://mapbox.s3.amazonaws.com/apps/install-node/latest/run | NV=14.16.0 NP=linux-x64 OD=/usr/local sh
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ You can point `install_node` add the official node dist endpoint or your own mir
 When using a custom nodejs mirror url, please note that the `install_node` script itself does not perform any validation or verification of the download.
 
 ```
-$ INSTALL_NODE_URL=http://nodejs.org/dist install_node v14.15.4 linux-x64 /usr/local
+$ INSTALL_NODE_URL=http://nodejs.org/dist install_node v14.16.0 linux-x64 /usr/local
 ```
 
 ## Allowed Versions
