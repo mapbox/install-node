@@ -10,7 +10,7 @@ In addition, nodejs binaries cached by Mapbox have had their signatures and shas
 
 The latest version of the `install-node` script is always available at `https://mapbox.s3.amazonaws.com/apps/install-node/latest/run`. Versioned `install-node` scripts are still available at `https://mapbox.s3.amazonaws.com/apps/install-node/v{VERSION}/run`, but the latest version is recommended.
 
-You should install the script from S3 with `curl` or `wget` and run it, specifying parameters as environment variables:
+You should install the script fro m S3 with `curl` or `wget` and run it, specifying parameters as environment variables:
 
 ```
 $ curl https://mapbox.s3.amazonaws.com/apps/install-node/latest/run | NV=14.15.4 NP=linux-x64 OD=/usr/local sh
