@@ -63,4 +63,4 @@ Update the v3 cache file, and on commit, new versions added will be cached by th
 
 ## CI Builds
 - We have disabled Travis CI integration and are no longer running builds
-- Node versions that already stashed on s3 will remain
+- Node versions that were already stashed on s3 will remain
