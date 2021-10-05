@@ -60,3 +60,7 @@ Update the v3 cache file, and on commit, new versions added will be cached by th
 - Deprecated Windows support
 - Carbon LTS (v8) and later only
 - Updated nodejs team package signatures
+
+## CI Builds
+- We have disabled Travis CI integration and are no longer running builds
+- Node versions that were already stashed on s3 will remain
