@@ -43,7 +43,6 @@ if [ "$bin_only" = "true" ]; then
     echo "Requested bin only: $bin_only"
 fi
 
-majorv="$(echo $node_version | cut -c 1)"
 case $platformarch in
     "linux-x64")
         url="$INSTALL_NODE_URL/v$node_version/node-v$node_version-linux-x64.tar.gz"
