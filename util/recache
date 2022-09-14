@@ -106,7 +106,7 @@ for nv in "${versions[@]}"; do
         fi
     fi
 
-    echo "Verifying signature of nodejs SHASUMS.txt.asc"
+    echo "Verifying signature of nodejs $SHASUMFILE"
     gpg --verify < $SHASUMFILE
 
     cachefile node-v$nv-linux-x64.tar.gz $nv
