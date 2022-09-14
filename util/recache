@@ -17,10 +17,10 @@ function cachefile() {
     local localname=$(echo $1 | tr '/' '-')
     local nv=$2
 
-    if wget -q -O $localname "http://nodejs.org/dist/v$nv/$filename"; then
+    if wget -q -O $localname "https://nodejs.org/dist/v$nv/$filename"; then
         md5sum "$localname" > "$localname.md5"
     else
-        echo "$filename not found at http://nodejs.org/dist/v$nv/$filename" && return 0
+        echo "$filename not found at https://nodejs.org/dist/v$nv/$filename" && return 0
     fi
 
     # RHEL/centos7 does not ship with a parent shasum function.
@@ -98,10 +98,10 @@ for nv in "${versions[@]}"; do
     # Verify signed SHASUMS file to ensure it can be trusted
     # Versions after 4.0.0 use shasum's 256 algorithm, check for both
     SHASUMFILE="SHASUMS.txt.asc"
-    if ! wget -q -O $SHASUMFILE "http://nodejs.org/dist/v$nv/$SHASUMFILE"; then
+    if ! wget -q -O $SHASUMFILE "https://nodejs.org/dist/v$nv/$SHASUMFILE"; then
         echo "$SHASUMFILE not found" && rm $SHASUMFILE
         SHASUMFILE="SHASUMS256.txt.asc"
-        if ! wget -q -O $SHASUMFILE "http://nodejs.org/dist/v$nv/$SHASUMFILE"; then
+        if ! wget -q -O $SHASUMFILE "https://nodejs.org/dist/v$nv/$SHASUMFILE"; then
             echo "$SHASUMFILE not found. No SHASUM file found for v$nv, exiting." && exit 1
         fi
     fi
