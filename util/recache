@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # check version of install-node
 install_v=$(node -e "console.log(($(cat $(dirname $0)/../package.json)).version.split('.')[0])")
@@ -53,38 +53,6 @@ function cachefile() {
     aws s3 cp --acl public-read "$localname.md5"  "$dest/v$nv/$filename.md5"
 }
 
-# Add trusted gpg keys for verifying nodejs downloads
-if which gpg > /dev/null; then
-    # from https://github.com/nodejs/node#verifying-binaries,
-    # keyserver list taken from the nodejs v10.x Dockerfile
-    for key in \
-        94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-        FD3A5288F042B6850C66B31F09FE44734EB7990E \
-        71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
-        DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-        C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
-        B9AE9905FFD7803F25714661B63B535A4C206CA9 \
-        77984A986EBC2AA786BC0F66B01FBB92821C587A \
-        8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
-        4ED778F539E3634C779C87C6D7062848A1AB005C \
-        A48C2BEE680E841632CD4E44F07496B3EB3C1762 \
-        B9E2F5981AA6E0CD28160D9FF13993A75599653C \
-        141F07595B7B3FFE74309A937405533BE57C7D57 \
-        74F12602B6F1C4E913FAA37AD3A89613643B6201 \
-        61FC681DFB92A079F1685E77973F295594EC4689 \
-        890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
-        C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
-        108F52B48DB57BB0CC439B2997B01419BD92F80A \
-        ; do
-        gpg --batch --keyserver hkps://keyserver.ubuntu.com --recv-keys "$key" ||
-            gpg --batch --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$key" ||
-            gpg --batch --keyserver hkp://ipv4.pool.sks-keyservers.net --recv-keys "$key" ||
-            gpg --batch --keyserver hkp://pgp.mit.edu:80 --recv-keys "$key" ;
-    done
-else
-    echo "!WARN! gpg not found. Please install and try again" && exit 1
-fi
-
 aws s3 cp --acl public-read "$main_file"           $apps_dest/$gitsha/run
 aws s3 cp --acl public-read "$version_file"        $apps_dest/cache/v${install_v}/
 
@@ -102,18 +70,13 @@ for nv in "${versions[@]}"; do
     echo "Caching Node.js v$nv to S3"
 
     # Verify signed SHASUMS file to ensure it can be trusted
-    # Versions after 4.0.0 use shasum's 256 algorithm, check for both
-    SHASUMFILE="SHASUMS.txt.asc"
+    SHASUMFILE="SHASUMS256.txt"
     if ! wget -q -O $SHASUMFILE "https://nodejs.org/dist/v$nv/$SHASUMFILE"; then
-        echo "$SHASUMFILE not found" && rm $SHASUMFILE
-        SHASUMFILE="SHASUMS256.txt.asc"
-        if ! wget -q -O $SHASUMFILE "https://nodejs.org/dist/v$nv/$SHASUMFILE"; then
-            echo "$SHASUMFILE not found. No SHASUM file found for v$nv, exiting." && exit 1
-        fi
+        echo "$SHASUMFILE not found. No SHASUM file found for v$nv, exiting." && exit 1
     fi
 
     echo "Verifying signature of nodejs $SHASUMFILE"
-    gpg --verify < $SHASUMFILE
+    sha256sum -c "$SHASUMFILE" --ignore-missing
 
     cachefile node-v$nv-linux-x64.tar.gz $nv
     cachefile node-v$nv-darwin-x64.tar.gz $nv

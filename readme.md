@@ -53,7 +53,9 @@ All versions of nodejs cached by Mapbox are available using any version of the `
 
 ## Adding new versions
 
-Update the v3 cache file, and on commit, new versions added will be cached by the Travis CI job.
+* Login to the default account via `mbx env -a default`
+* Update the v4 cache file and add your desired version
+* Run `bash ./util/recache`
 
 ## v3 Changes
 
